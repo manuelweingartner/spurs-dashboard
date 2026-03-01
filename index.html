@@ -771,7 +771,9 @@
 
         // Countdown
         let nextGameDate = null;
+        let isLive = false;
         function updateCountdown() {
+            if (isLive) return;
             if (!nextGameDate) return;
             let diff = nextGameDate - new Date();
             if (diff < 0) diff = 0;
@@ -781,10 +783,10 @@
             document.getElementById('cd-seconds').textContent = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
         }
 
-        // Parse schedule into upcoming + completed
+        // Parse schedule into upcoming, completed, and live
         function parseGames(data) {
             const now = new Date();
-            const upcoming = [], completed = [];
+            const upcoming = [], completed = [], live = [];
             for (const ev of (data.events || [])) {
                 const comp = ev.competitions?.[0];
                 if (!comp) continue;
@@ -804,13 +806,15 @@
                     spursScore: spurs.score?.displayValue || spurs.score?.value || 0,
                     oppScore: opp.score?.displayValue || opp.score?.value || 0,
                     win: spurs.winner === true,
+                    statusDetail: comp.status?.type?.shortDetail || '',
                 };
                 if (status === 'STATUS_FINAL') completed.push(game);
+                else if (status === 'STATUS_IN_PROGRESS' || status === 'STATUS_HALFTIME') live.push(game);
                 else if (status === 'STATUS_SCHEDULED' || gameDate > now) upcoming.push(game);
             }
             upcoming.sort((a, b) => new Date(a.date) - new Date(b.date));
             completed.sort((a, b) => new Date(b.date) - new Date(a.date));
-            return { upcoming, completed };
+            return { upcoming, completed, live };
         }
 
         // Render schedule with show-more / show-less (no TV column)
@@ -885,8 +889,25 @@
             container.innerHTML = html + '</div>';
         }
 
-        // Setup countdown
-        function setupCountdown(game) {
+        // Setup countdown or live state
+        function setupCountdown(game, liveGame) {
+            if (liveGame) {
+                isLive = true;
+                document.querySelector('.countdown-label').textContent = 'Live jetzt';
+                document.getElementById('next-opponent').textContent = liveGame.opponent;
+                document.getElementById('next-game-info').innerHTML =
+                    `${liveGame.venue} &bull; ${liveGame.statusDetail || 'Live'}`;
+                document.querySelector('.countdown-timer').innerHTML =
+                    `<div style="text-align:center;">
+                        <div style="font-size:2.5rem;font-weight:900;color:var(--accent);margin-bottom:0.5rem;animation:pulse-glow 2s ease-in-out infinite;">
+                            ${liveGame.spursScore} - ${liveGame.oppScore}
+                        </div>
+                        <div style="font-size:1.1rem;font-weight:700;color:var(--win);letter-spacing:0.15em;text-transform:uppercase;">
+                            Spurs spielen jetzt live
+                        </div>
+                    </div>`;
+                return;
+            }
             if (!game) return;
             nextGameDate = new Date(game.date);
             document.getElementById('next-opponent').textContent = game.opponent;
@@ -1464,11 +1485,12 @@
                 if (overall?.summary) recEl.innerHTML = `Saison Record: <span>${overall.summary}</span>`;
             }
 
-            const { upcoming, completed } = parseGames(scheduleData);
+            const { upcoming, completed, live } = parseGames(scheduleData);
             renderSchedule(upcoming);
             renderResults(completed);
 
-            if (upcoming.length) setupCountdown(upcoming[0]);
+            if (live.length) setupCountdown(upcoming[0], live[0]);
+            else if (upcoming.length) setupCountdown(upcoming[0], null);
             else document.getElementById('next-game-info').textContent = 'Kein Spiel geplant';
 
             // Load injury report, standings, and player stats in parallel
