@@ -1156,15 +1156,11 @@
         async function loadInjuryReport() {
             const container = document.getElementById('injury-container');
             try {
-                const data = await espnFetch(`${ESPN}/teams/${SPURS_ID}/injuries`);
-                const injuries = data.injuries || data.items || [];
-
-                let allInjuries = [];
-                if (injuries.length && injuries[0].injuries) {
-                    for (const group of injuries) allInjuries.push(...(group.injuries || []));
-                } else {
-                    allInjuries = injuries;
-                }
+                // Global injuries endpoint returns all teams; filter by our team
+                const data = await espnFetch(`${ESPN}/injuries`);
+                const teamGroups = data.injuries || [];
+                const teamGroup = teamGroups.find(g => String(g.id) === SPURS_ID || String(g.team?.id) === SPURS_ID);
+                const allInjuries = teamGroup?.injuries || [];
 
                 if (!allInjuries.length) {
                     container.innerHTML = `<div class="all-healthy">
@@ -1213,53 +1209,8 @@
                 html += '</div>';
                 container.innerHTML = html;
             } catch (err) {
-                try {
-                    const roster = await espnFetch(`${ESPN}/teams/${SPURS_ID}/roster`);
-                    const injured = [];
-                    for (const group of (roster.athletes || [])) {
-                        for (const a of (group.items || [])) {
-                            if (a.injuries?.length) {
-                                for (const inj of a.injuries) {
-                                    injured.push({
-                                        name: a.displayName || a.fullName,
-                                        id: a.id,
-                                        img: a.headshot?.href || playerHeadshot(a.id),
-                                        status: inj.status || 'Out',
-                                        detail: inj.details?.detail || inj.shortComment || 'Keine Details',
-                                        date: inj.date || ''
-                                    });
-                                }
-                            }
-                        }
-                    }
-                    if (!injured.length) {
-                        container.innerHTML = `<div class="all-healthy">
-                            <span class="all-healthy-check">&#10003;</span>
-                            Alle Spieler fit &mdash; keine Verletzungen gemeldet
-                        </div>`;
-                        return;
-                    }
-                    let html = '<div class="injury-grid">';
-                    for (const p of injured) {
-                        const st = p.status.toLowerCase();
-                        let cls = 'injury-out';
-                        if (st.includes('day')) cls = 'injury-dtd';
-                        else if (st.includes('question')) cls = 'injury-questionable';
-                        else if (st.includes('doubt')) cls = 'injury-doubtful';
-                        html += `<div class="injury-card ${cls}">
-                            <img class="injury-img" src="${p.img}" alt="${p.name}" onerror="this.style.display='none'">
-                            <div class="injury-info">
-                                <div class="injury-name">${p.name}</div>
-                                <div class="injury-detail">${p.detail}</div>
-                                ${p.date ? `<div class="injury-date">Seit ${formatShortDate(p.date)}</div>` : ''}
-                            </div>
-                            <span class="injury-status">${p.status}</span>
-                        </div>`;
-                    }
-                    container.innerHTML = html + '</div>';
-                } catch {
-                    container.innerHTML = '<div class="error-msg">Injury Report konnte nicht geladen werden.</div>';
-                }
+                console.error('Injury report error:', err);
+                container.innerHTML = '<div class="error-msg">Injury Report konnte nicht geladen werden.</div>';
             }
         }
 
