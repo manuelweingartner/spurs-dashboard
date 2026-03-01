@@ -399,7 +399,8 @@
         }
 
         /* Standings */
-        .standings-table { width: 100%; border-collapse: collapse; }
+        .standings-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .standings-table { width: 100%; border-collapse: collapse; min-width: 500px; }
         .standings-table th {
             text-align: left; font-size: 0.7rem; text-transform: uppercase;
             letter-spacing: 0.1em; color: var(--text-secondary);
@@ -458,11 +459,16 @@
             .hero-logo-wrap { margin: 0 0.25rem; }
             .countdown-timer { gap: 0.75rem; }
             .countdown-number { font-size: 2rem; min-width: 65px; padding: 0.4rem 0.6rem; }
+            .countdown-separator { font-size: 2rem; padding-top: 0.3rem; }
             .stats-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
             .section { padding: 2rem 1rem; }
             .tab-btn { padding: 0.8rem 1rem; font-size: 0.7rem; }
+            .standings-table td, .standings-table th { padding: 0.5rem 0.4rem; font-size: 0.75rem; }
+            .champ-wrapper { flex-direction: column; align-items: center; }
+            .champ-factors { min-width: unset; width: 100%; }
         }
         @media (max-width: 480px) {
+            /* Hero */
             .hero { min-height: 250px; }
             .hero-content { padding: 1rem 0.5rem; }
             .hero-players { gap: 0.5rem; }
@@ -474,9 +480,91 @@
             .hero-logo-wrap { margin: 0 0.1rem; }
             .hero h1 { font-size: 1.6rem; letter-spacing: 0.1em; }
             .hero h1 .sub { font-size: 0.9rem; letter-spacing: 0.2em; }
-            .schedule-table th:nth-child(4), .schedule-table td:nth-child(4) { display: none; }
-            .top-bar { flex-direction: column; gap: 0.25rem; text-align: center; }
+            .hero-jardin { margin-top: 0.5rem; padding: 0.3rem 0.8rem; }
+            .hero-jardin span { font-size: 0.6rem; }
+
+            /* Top Bar */
+            .top-bar { flex-direction: column; gap: 0.25rem; text-align: center; padding: 0.5rem 1rem; }
+            .top-bar-brand { font-size: 0.55rem; letter-spacing: 0.2em; }
+
+            /* Tabs */
             .tab-btn { padding: 0.7rem 0.75rem; font-size: 0.65rem; letter-spacing: 0.05em; }
+
+            /* Countdown */
+            .countdown-section { padding: 1.5rem 1rem; }
+            .countdown-matchup { font-size: 1.1rem; }
+            .countdown-date { font-size: 0.8rem; margin-bottom: 1.25rem; }
+            .countdown-timer { gap: 0.4rem; }
+            .countdown-number { font-size: 1.5rem; min-width: 50px; padding: 0.4rem 0.3rem; }
+            .countdown-separator { font-size: 1.5rem; padding-top: 0.3rem; }
+            .countdown-unit-label { font-size: 0.55rem; }
+
+            /* Schedule */
+            .schedule-table th { font-size: 0.6rem; padding: 0 0.5rem 0.5rem; }
+            .schedule-table td { padding: 0.6rem 0.5rem; font-size: 0.8rem; }
+            .schedule-table th:nth-child(4), .schedule-table td:nth-child(4) { display: none; }
+            .game-date { font-size: 0.75rem; }
+            .game-time { font-size: 0.8rem; }
+            .team-logo-small { width: 26px; height: 26px; }
+            .team-logo-small img { width: 22px; height: 22px; }
+            .opponent-name { font-size: 0.8rem; }
+            .home-away { font-size: 0.65rem; }
+
+            /* Results */
+            .results-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+            .result-card { padding: 0.75rem; border-radius: 10px; }
+            .result-score { font-size: 1.1rem; }
+            .result-opponent { font-size: 0.7rem; }
+            .result-logo { width: 30px; height: 30px; }
+            .result-date { font-size: 0.6rem; }
+            .result-badge { font-size: 0.6rem; padding: 0.1rem 0.4rem; }
+
+            /* Player Stats */
+            .stats-grid { grid-template-columns: 1fr; }
+            .player-card-header { height: 200px; }
+            .player-card-body { padding: 1rem; }
+            .player-card-name { font-size: 1rem; }
+            .gamelog-table { font-size: 0.55rem; }
+            .gamelog-table th { font-size: 0.5rem; padding: 0.3rem 0.15rem; }
+            .gamelog-table td { padding: 0.3rem 0.15rem; }
+
+            /* Injury Report */
+            .injury-grid { grid-template-columns: 1fr; }
+            .injury-card { padding: 0.75rem; gap: 0.6rem; }
+            .injury-img { width: 40px; height: 40px; }
+            .injury-name { font-size: 0.8rem; }
+            .injury-detail { font-size: 0.7rem; }
+            .injury-status { font-size: 0.6rem; }
+
+            /* Standings */
+            .standings-table th, .standings-table td { padding: 0.45rem 0.3rem; font-size: 0.65rem; }
+            .standings-team img { width: 18px; height: 18px; }
+            .standings-team span { font-size: 0.7rem; }
+            .standings-team { gap: 0.35rem; }
+
+            /* Player of the Month */
+            .potm-winner { padding: 1.25rem; min-width: unset; }
+            .potm-img { width: 90px; height: 90px; }
+            .potm-name { font-size: 1.1rem; }
+            .potm-stat-val { font-size: 1.1rem; }
+            .potm-runners { flex: auto; width: 100%; }
+
+            /* Championship Contender */
+            .champ-ring-wrap { width: 160px; height: 160px; }
+            .champ-ring-bg, .champ-ring-fg { width: 160px; height: 160px; }
+            .champ-pct-val { font-size: 2.2rem; }
+            .champ-factor { padding: 0.5rem 0; gap: 0.6rem; }
+            .champ-factor-score { width: 40px; height: 40px; font-size: 0.85rem; }
+            .champ-factor-name { font-size: 0.8rem; }
+            .champ-factor-desc { font-size: 0.65rem; }
+
+            /* Section headers */
+            .section { padding: 1.5rem 0.75rem; }
+            .section-header h2 { font-size: 1.1rem; }
+
+            /* Footer */
+            footer { padding: 2rem 1rem; font-size: 0.65rem; }
+            footer .jardin-footer span { font-size: 0.65rem; }
         }
     </style>
 </head>
@@ -612,7 +700,7 @@
     <footer>
         <div class="jardin-footer">
             <img src="https://pbs.twimg.com/profile_images/1342389942698323970/4FBBDglu_400x400.jpg" alt="JARDINDUVIN">
-            <span>San Antonio Spurs Seite f&uuml;r JARDINDUVIN</span>
+            <span>San Antonio Spurs Seite von JARDINDUVIN</span>
         </div>
         <p>Alle Zeiten in Schweizer Ortszeit (MEZ/MESZ) &bull; Live-Daten via ESPN</p>
         <p style="margin-top:0.3rem;">Kein offizielles NBA-Produkt.</p>
